@@ -1,38 +1,22 @@
-# create-svelte
+# Repo to show a possible bug with eslint-parser-svelte
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+Relevant files: 
+- src/routes/+page.svelte
+- src/routes/component.svelte
 
-## Creating a project
+Run `npm run bug` to run eslint on the relevant file.
 
-If you're seeing this, you've probably already done this step. Congrats!
+Problem:
+As you can see in `component.svelte`, the event `foo` is typed as an object and the VSCode extension correctly detects the type of `X` upon hover.
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+![image](https://github.com/user-attachments/assets/3dc53b4f-3af2-4600-a3d6-e8a6301ddf9d)
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+However -- when running eslint on `+page.svelte`, there is a linter error indicating that `X` is typed as `any` for the eslint:
+`'any' overrides all other types in this union type  @typescript-eslint/no-redundant-type-constituents`
 
-## Developing
+![image](https://github.com/user-attachments/assets/a34f6f45-88c6-4835-81a5-b55c2045e096)
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
-```bash
-npm run dev
+Further testing with other type-checked rules (i.e. `@typescript-eslint/no-unsafe-assignment` and `@typescript-eslint/no-unsafe-member-access`) also show that `X` is simply `any` for eslint.
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+This is a problem since my CI can't catch a lot of errors then and type-safety goes down the drain. 
